@@ -7,8 +7,6 @@ root.geometry('1400x600')
 root.resizable(0, 0)
 root.title('Restaurante Sakura')
 
-#oi
-
 vtemaki = IntVar()
 vsushicombo = IntVar()
 vsashimi = IntVar()
