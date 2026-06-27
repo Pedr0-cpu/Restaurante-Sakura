@@ -1,182 +1,241 @@
-from tkinter import *
-from tkinter import filedialog, messagebox
-import time
+import tkinter as tk
+from tkinter import messagebox, filedialog
+import random
 
-root = Tk()
-root.geometry('1400x600')
-root.resizable(0, 0)
-root.title('Restaurante Sakura')
+LIMITE_TOTAL = 100
 
-vtemaki = IntVar()
-vsushicombo = IntVar()
-vsashimi = IntVar()
-vsake = IntVar()
-vcha_verde = IntVar()
-vrefri = IntVar()
-vmochi = IntVar()
-vhot_doce = IntVar()
-vsorvete_matcha = IntVar()
+PRODUTOS = {
+    
+    "Temaki": {"preco": 25, "max": 15, "cat": "Sushi & Sashimi"},
+    "Sushi Combo": {"preco": 65, "max": 10, "cat": "Sushi & Sashimi"},
+    "Sashimi": {"preco": 45, "max": 12, "cat": "Sushi & Sashimi"},
+    "Yakissoba": {"preco": 38, "max": 15, "cat": "Sushi & Sashimi"},
+    "Gyoza": {"preco": 22, "max": 20, "cat": "Sushi & Sashimi"},
+    
+    
+    "Saquê": {"preco": 18, "max": 30, "cat": "Bebidas"},
+    "Chá Verde": {"preco": 8, "max": 40, "cat": "Bebidas"},
+    "Refrigerante": {"preco": 6, "max": 50, "cat": "Bebidas"},
+    "Suco de Laranja": {"preco": 9, "max": 35, "cat": "Bebidas"},
+    "Água Mineral": {"preco": 5, "max": 60, "cat": "Bebidas"},
+    
+    
+    "Mochi": {"preco": 12, "max": 25, "cat": "Sobremesas"},
+    "Hot Roll Doce": {"preco": 16, "max": 20, "cat": "Sobremesas"},
+    "Sorvete Matcha": {"preco": 14, "max": 20, "cat": "Sobremesas"},
+    "Tempurá Sorvete": {"preco": 22, "max": 15, "cat": "Sobremesas"},
+    "Salada de Frutas": {"preco": 10, "max": 25, "cat": "Sobremesas"},
+}
 
-custototal = StringVar()
-totaldocomida = StringVar()
-totaldobebida = StringVar()
-totaldoces1 = StringVar()
+class Sakura:
+    def __init__(self):
+        self.qtd = {p: 0 for p in PRODUTOS}
+        self.labels_qtd = {}
+        self.tela_inicial()
 
+    def tela_inicial(self):
+        self.splash = tk.Tk()
+        self.splash.title("Restaurante Sakura")
+        
 
-def quit():
-    root.quit()
+        self.splash.attributes('-fullscreen', True)
+        self.splash.configure(bg="#8B0000")
 
-def limpar():
-    vtemaki.set(0)
-    vsushicombo.set(0)
-    vsashimi.set(0)
-    vsake.set(0)
-    vcha_verde.set(0)
-    vrefri.set(0)
-    vmochi.set(0)
-    vhot_doce.set(0)
-    vsorvete_matcha.set(0)
-    custototal.set("")
-    totaldocomida.set("")
-    totaldobebida.set("")
-    totaldoces1.set("")
-    txt.delete('1.0', END)
+        canvas = tk.Canvas(self.splash, bg="#8B0000", highlightthickness=0)
+        canvas.pack(fill="both", expand=True)
 
-def totalapp():
-    item_comida1 = vtemaki.get()
-    item_comida2 = vsushicombo.get()
-    item_comida3 = vsashimi.get()
-    item_bebida1 = vsake.get()
-    item_bebida2 = vcha_verde.get()
-    item_bebida3 = vrefri.get()
-    item_doce1 = vmochi.get()
-    item_doce2 = vhot_doce.get()
-    item_doce3 = vsorvete_matcha.get()
+        self.splash.update()
+        largura = self.splash.winfo_width()
+        altura = self.splash.winfo_height()
 
-    precotemaki, precosushicombo, precosashimi = 25.0, 65.0, 45.0
-    precosake, precocha_verde, precorefri = 18.0, 8.0, 6.0
-    precomochi, precohot_doce, precosorvete = 12.0, 16.0, 14.0
+        pétalas_base = [
+            (40,40), (90,70), (140,50), (560,50), (610,80), (650,40),
+            (250,90), (320,70), (430,80), (50,180), (70,240), (40,320),
+            (620,180), (590,260), (630,340), (270,240), (380,250), (470,220),
+            (120,370), (220,390), (350,400), (480,390), (580,370)
+        ]
+        #p
+        for px, py in pétalas_base:
+            for fator_x in [0.1, 0.5, 0.8]:
+                x = int(px + (largura * fator_x) - 300)
+                y = int(py * (altura / 450))
+                if 0 < x < largura and 0 < y < altura:
+                    canvas.create_oval(x, y, x+18, y+12, fill="#FFC0CB", outline="")
+                    canvas.create_oval(x+10, y-5, x+28, y+7, fill="#FFD1DC", outline="")
 
-    totalcomida = (precotemaki * item_comida1) + (precosushicombo * item_comida2) + (precosashimi * item_comida3)
-    totabebidas = (precocha_verde * item_bebida2) + (precosake * item_bebida1) + (precorefri * item_bebida3)
-    totaldoces = (precomochi * item_doce1) + (precohot_doce * item_doce2) + (precosorvete * item_doce3)
+        canvas.create_text(largura // 2, altura // 2 - 50, text="✿ Restaurante SAKURA",
+                           fill="white", font=("Georgia", 40, "bold"))
 
-    totaldetudo = round(totalcomida + totabebidas + totaldoces, 2)
+        
+        canvas.create_text(largura // 2, altura // 2 + 50, text="A carregar o sistema...",
+                           fill="gold", font=("Arial", 14, "italic"))
 
-    custototal.set(f"R$ {totaldetudo:.2f}")
-    totaldocomida.set(f"R$ {totalcomida:.2f}")
-    totaldobebida.set(f"R$ {totabebidas:.2f}")
-    totaldoces1.set(f"R$ {totaldoces:.2f}")
+        self.splash.after(6000, self.abrir)
+        self.splash.mainloop()
 
-def bill_area():
-    txt.delete('1.0', END)
-    date = time.strftime('%d/%m/%Y')
-    hora = time.strftime('%H:%M:%S')
+    def abrir(self):
+        self.splash.destroy()
 
-    txt.insert(END, "        Restaurante Sakura \n") 
-    txt.insert(END, "\n====================================")
-    txt.insert(END, f"\n Hora: {hora}       Data: {date} ")
-    txt.insert(END, "\n====================================")
-    txt.insert(END, "\nProduto          Qtd       Preço")
-    txt.insert(END, "\n====================================")
+        self.root = tk.Tk()
+        self.root.title("Restaurante Sakura")
+        
+        self.root.attributes('-fullscreen', True)
+        self.root.configure(bg="firebrick4")
+        
+        self.root.bind("<Escape>", lambda e: self.root.destroy())
 
-    precotemaki, precosushicombo, precosashimi = 25.0, 65.0, 45.0
-    precosake, precocha_verde, precorefri = 18.0, 8.0, 6.0
-    precomochi, precohot_doce, precosorvete = 12.0, 16.0, 14.0
+        self.criar_interface()
+        self.root.mainloop()
 
-    if vtemaki.get() != 0: txt.insert(END, f"\nTemaki           {vtemaki.get()}         R$ {vtemaki.get() * precotemaki:.2f}")
-    if vsushicombo.get() != 0: txt.insert(END, f"\nSushi Combo      {vsushicombo.get()}         R$ {vsushicombo.get() * precosushicombo:.2f}")
-    if vsashimi.get() != 0: txt.insert(END, f"\nSashimi          {vsashimi.get()}         R$ {vsashimi.get() * precosashimi:.2f}")
-    if vsake.get() != 0: txt.insert(END, f"\nSake             {vsake.get()}         R$ {vsake.get() * precosake:.2f}")
-    if vcha_verde.get() != 0: txt.insert(END, f"\nChá Verde        {vcha_verde.get()}         R$ {vcha_verde.get() * precocha_verde:.2f}")
-    if vrefri.get() != 0: txt.insert(END, f"\nRefrigerante     {vrefri.get()}         R$ {vrefri.get() * precorefri:.2f}")
-    if vmochi.get() != 0: txt.insert(END, f"\nMochi            {vmochi.get()}         R$ {vmochi.get() * precomochi:.2f}")
-    if vhot_doce.get() != 0: txt.insert(END, f"\nHot Roll Doce    {vhot_doce.get()}         R$ {vhot_doce.get() * precohot_doce:.2f}")
-    if vsorvete_matcha.get() != 0: txt.insert(END, f"\nSorvete Matcha   {vsorvete_matcha.get()}         R$ {vsorvete_matcha.get() * precosorvete:.2f}")
+    def criar_produto(self, pai, nome):
+        box = tk.Frame(pai, bg="firebrick4")
+        box.pack(fill="x", pady=4, padx=5)
+        box.columnconfigure(0, weight=1)
 
-    total_geral = (vtemaki.get() * precotemaki + vsushicombo.get() * precosushicombo + vsashimi.get() * precosashimi + vsake.get() * precosake + vcha_verde.get() * precocha_verde + vrefri.get() * precorefri + vmochi.get() * precomochi + vhot_doce.get() * precohot_doce + vsorvete_matcha.get() * precosorvete)
+        info = PRODUTOS[nome]
 
-    txt.insert(END, "\n====================================")
-    txt.insert(END, f"\n Total Geral :                  R$ {total_geral:.2f}")
+        tk.Label(
+            box,
+            text=f"{nome}\nR$ {info['preco']} | Max.{info['max']}",
+            bg="firebrick4",
+            fg="white",
+            justify="left",
+            font=("Arial", 10, "bold")
+        ).grid(row=0, column=0, sticky="w", padx=2)
 
-def save():
-    if txt.get(1.0, END).strip() == "": return
-    url = filedialog.asksaveasfile(mode='w', defaultextension='.txt')
-    if url is None: return
-    url.write(txt.get(1.0, END))
-    url.close()
-    messagebox.showinfo('Informação', 'Consulta de Mesa salva com sucesso!')
+        btn_container = tk.Frame(box, bg="firebrick4")
+        btn_container.grid(row=0, column=1, sticky="e")
 
+        tk.Button(btn_container, text="-", width=3, bg="red", fg="white", font=("Arial", 9, "bold"),
+                  command=lambda: self.alterar(nome, -1)).pack(side="left", padx=5)
 
-titulo = Label(root, text="Restaurante Sakura", font=('arial', 22, 'bold'),
-              bg='firebrick4', fg="#d4af37", bd=12, relief=GROOVE) 
-titulo.place(relx=0.38, rely=0.03)
+        lbl = tk.Label(btn_container, text="0", width=4, bg="white", font=("Arial", 10, "bold"))
+        lbl.pack(side="left", padx=5)
 
+        tk.Button(btn_container, text="+", width=3, bg="green", fg="white", font=("Arial", 9, "bold"),
+                  command=lambda: self.alterar(nome, 1)).pack(side="left", padx=5)
 
-F2 = LabelFrame(text='Sushi & Sashimi', bd=10, relief=GROOVE, bg="firebrick4", fg="gold", font=("times new roman", 13, "bold"))
-F2.place(x=15, y=100, width=325, height=250)
+        self.labels_qtd[nome] = lbl
 
-F3 = LabelFrame(text='Bebidas', bd=10, relief=GROOVE, bg="firebrick4", fg="gold", font=("times new roman", 13, "bold"))
-F3.place(x=350, y=100, width=325, height=250)
+    def alterar(self, nome, valor):
+        atual = self.qtd[nome]
+        limite = PRODUTOS[nome]["max"]
+        novo = atual + valor
 
-F4 = LabelFrame(text='Sobremesas', bd=10, relief=GROOVE, bg="firebrick4", fg="gold", font=("times new roman", 13, "bold"))
-F4.place(x=680, y=100, width=325, height=250)
+        if novo < 0:
+            return
+        if novo > limite:
+            messagebox.showwarning("Limite", f"{nome}: máximo {limite}")
+            return
 
-F5 = LabelFrame(text='Ações', bd=10, relief=GROOVE, bg="firebrick4", fg="gold", font=("times new roman", 13, "bold"))
-F5.place(x=15, y=350, width=990, height=90)
+        self.qtd[nome] = novo
+        self.labels_qtd[nome].config(text=str(novo))
+        self.atualizar_total()
 
-F6 = LabelFrame(text='Resumo Financeiro', bd=10, relief=GROOVE, bg="firebrick4", fg="gold", font=("times new roman", 13, "bold"))
-F6.place(x=15, y=435, width=990, height=160)
+    def criar_interface(self):
 
-F7 = Label(root, bd=10, relief=GROOVE)
-F7.place(x=1050, y=100, width=325, height=480)
+        f2 = tk.LabelFrame(self.root, text="Sushi & Sashimi", bg="firebrick4", fg="gold", font=("Arial", 11, "bold"))
+        f2.place(relx=0.02, rely=0.12, relwidth=0.23, relheight=0.38)
 
-bill_title = Label(F7, text="Nota Fiscal", font=("Lucida", 13, "bold"), bd=7, relief=GROOVE)
-bill_title.pack(fill=X)
+        f3 = tk.LabelFrame(self.root, text="Bebidas", bg="firebrick4", fg="gold", font=("Arial", 11, "bold"))
+        f3.place(relx=0.27, rely=0.12, relwidth=0.23, relheight=0.38)
 
-scroll_y = Scrollbar(F7, orient=VERTICAL)
-txt = Text(F7, yscrollcommand=scroll_y.set)
-scroll_y.pack(side=RIGHT, fill=Y)
-scroll_y.config(command=txt.yview)
-txt.pack(fill=BOTH, expand=1)
+        f4 = tk.LabelFrame(self.root, text="Sobremesas", bg="firebrick4", fg="gold", font=("Arial", 11, "bold"))
+        f4.place(relx=0.52, rely=0.12, relwidth=0.23, relheight=0.38)
 
+        for p in PRODUTOS:
+            cat = PRODUTOS[p]["cat"]
+            if cat == "Sushi & Sashimi":
+                self.criar_produto(f2, p)
+            elif cat == "Bebidas":
+                self.criar_produto(f3, p)
+            else:
+                self.criar_produto(f4, p)
 
-Label(F2, text='Temaki', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.2)
-Entry(F2, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vtemaki, justify='center').place(relx=0.6, rely=0.2)
-Label(F2, text='Sushi Combo', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.45)
-Entry(F2, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vsushicombo, justify='center').place(relx=0.6, rely=0.45)
-Label(F2, text='Sashimi', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.7)
-Entry(F2, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vsashimi, justify='center').place(relx=0.6, rely=0.7)
+        
+        f5 = tk.LabelFrame(self.root, text="Ações", bg="firebrick4", fg="gold", font=("Arial", 11, "bold"))
+        f5.place(relx=0.02, rely=0.53, relwidth=0.73, relheight=0.13)
 
-Label(F3, text='Sake Dose', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.2)
-Entry(F3, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vsake, justify='center').place(relx=0.6, rely=0.2)
-Label(F3, text='Chá Verde', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.45)
-Entry(F3, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vcha_verde, justify='center').place(relx=0.6, rely=0.45)
-Label(F3, text='Refrigerante', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.7)
-Entry(F3, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vrefri, justify='center').place(relx=0.6, rely=0.7)
+        
+        tk.Button(f5, text="Gerar Recibo", bg="green", fg="white", font=("Arial", 10, "bold"),
+                  command=self.recibo).place(relx=.04, rely=.2, relwidth=.20, relheight=.6)
+        tk.Button(f5, text="Salvar Recibo", bg="green", fg="white", font=("Arial", 10, "bold"),
+                  command=self.salvar).place(relx=.28, rely=.2, relwidth=.20, relheight=.6)
+        tk.Button(f5, text="Limpar Campos", bg="orange", fg="white", font=("Arial", 10, "bold"),
+                  command=self.limpar).place(relx=.52, rely=.2, relwidth=.20, relheight=.6)
+        tk.Button(f5, text="Sair (ESC)", bg="red", fg="white", font=("Arial", 10, "bold"),
+                  command=self.root.destroy).place(relx=.76, rely=.2, relwidth=.20, relheight=.6)
 
-Label(F4, text='Mochi (Unid)', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.2)
-Entry(F4, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vmochi, justify='center').place(relx=0.6, rely=0.2)
-Label(F4, text='Hot Roll Doce', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.45)
-Entry(F4, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vhot_doce, justify='center').place(relx=0.6, rely=0.45)
-Label(F4, text='Sorvete Matcha', font=('arial', 14, 'bold'), bg='firebrick4', fg='white').place(relx=0.05, rely=0.7)
-Entry(F4, font=('arial', 12, 'bold'), bd=5, width=6, textvariable=vsorvete_matcha, justify='center').place(relx=0.6, rely=0.7)
+        
+        f6 = tk.LabelFrame(self.root, text="🛒 Resumo do Pedido", bg="firebrick4", fg="gold", font=("Arial", 11, "bold"))
+        f6.place(relx=0.02, rely=0.68, relwidth=0.73, relheight=0.26)
 
-Button(F5, text='Calcular Total', font=('arial', 12, 'bold'), fg='white', bg='green', bd=3, command=totalapp).place(relx=0.03, rely=0.15, relwidth=0.16)
-Button(F5, text='Gerar Recibo', font=('arial', 12, 'bold'), fg='white', bg='green', bd=3, command=bill_area).place(relx=0.23, rely=0.15, relwidth=0.16)
-Button(F5, text='Salvar Recibo', font=('arial', 12, 'bold'), fg='white', bg='green', bd=3, command=save).place(relx=0.43, rely=0.15, relwidth=0.16)
-Button(F5, text='Limpar Campos', font=('arial', 12, 'bold'), fg='white', bg='orange', bd=3, command=limpar).place(relx=0.63, rely=0.15, relwidth=0.16)
-Button(F5, text='Sair', font=('arial', 12, 'bold'), fg='white', bg='red', bd=3, command=quit).place(relx=0.83, rely=0.15, relwidth=0.15)
+        self.total_lbl = tk.Label(f6, text="TOTAL: R$ 0,00", bg="firebrick4", fg="gold", font=("Arial", 16, "bold"))
+        self.total_lbl.pack(pady=4)
 
+        self.sushi_lbl = tk.Label(f6, text="🍣 Sushi & Sashimi: 0", bg="firebrick4", fg="white", font=("Arial", 10))
+        self.sushi_lbl.pack(pady=1)
 
-Label(F6, text="TOTAL DA CONTA:", font=("Arial", 12, "bold"), bg='firebrick4', fg='gold').place(relx=0.05, rely=0.4)
-Label(F6, textvariable=custototal, font=("Arial", 14, "bold"), fg="green").place(relx=0.3, rely=0.38, relwidth=0.15)
-Label(F6, text="Sushi:", bg='firebrick4', fg='white').place(relx=0.55, rely=0.15)
-Label(F6, textvariable=totaldocomida).place(relx=0.7, rely=0.15, relwidth=0.12)
-Label(F6, text="Bebidas:", bg='firebrick4', fg='white').place(relx=0.55, rely=0.45)
-Label(F6, textvariable=totaldobebida).place(relx=0.7, rely=0.45, relwidth=0.12)
-Label(F6, text="Doces:", bg='firebrick4', fg='white').place(relx=0.55, rely=0.75)
-Label(F6, textvariable=totaldoces1).place(relx=0.7, rely=0.75, relwidth=0.12)
+        self.bebidas_lbl = tk.Label(f6, text="🥤 Bebidas: 0", bg="firebrick4", fg="white", font=("Arial", 10))
+        self.bebidas_lbl.pack(pady=1)
 
-root.config(bg='firebrick4')
-root.mainloop()
+        self.doces_lbl = tk.Label(f6, text="🍰 Sobremesas: 0", bg="firebrick4", fg="white", font=("Arial", 10))
+        self.doces_lbl.pack(pady=1)
+
+        self.itens_lbl = tk.Label(f6, text="📦 Itens: 0/100", bg="firebrick4", fg="white", font=("Arial", 10, "bold"))
+        self.itens_lbl.pack(pady=3)
+
+        
+        f7 = tk.Frame(self.root, bd=3, relief="groove")
+        f7.place(relx=0.77, rely=0.12, relwidth=0.21, relheight=0.82)
+
+        tk.Label(f7, text="Nota Fiscal", font=("Arial", 12, "bold")).pack(fill="x", pady=5)
+        self.txt = tk.Text(f7, font=("Courier New", 11))
+        self.txt.pack(fill="both", expand=True, padx=4, pady=4)
+
+    def atualizar_total(self):
+        itens = sum(self.qtd.values())
+        total = sum(self.qtd[p]*PRODUTOS[p]["preco"] for p in PRODUTOS)
+        self.total_lbl.config(text=f"TOTAL: R$ {total:.2f}")
+        self.itens_lbl.config(text=f"📦 Itens: {itens}/{LIMITE_TOTAL}")
+
+        sushi = sum(self.qtd[p] for p in PRODUTOS if PRODUTOS[p]["cat"]=="Sushi & Sashimi")
+        bebidas = sum(self.qtd[p] for p in PRODUTOS if PRODUTOS[p]["cat"]=="Bebidas")
+        doces = sum(self.qtd[p] for p in PRODUTOS if PRODUTOS[p]["cat"]=="Sobremesas")
+
+        self.sushi_lbl.config(text=f"🍣 Sushi & Sashimi: {sushi}")
+        self.bebidas_lbl.config(text=f"🥤 Bebidas: {bebidas}")
+        self.doces_lbl.config(text=f"🍰 Sobremesas: {doces}")
+
+    def recibo(self):
+        total = sum(self.qtd[p]*PRODUTOS[p]["preco"] for p in PRODUTOS)
+        if total == 0:
+            messagebox.showwarning("Aviso", "Adicione itens ao pedido.")
+            return
+
+        self.txt.delete("1.0", "end")
+        self.txt.insert("end", "RESTAURANTE SAKURA\n\n")
+        self.txt.insert("end", f"Pedido Nº: {random.randint(1000,9999)}\n\n")
+
+        for p in PRODUTOS:
+            if self.qtd[p]:
+                self.txt.insert("end", f"{p:<18}{self.qtd[p]}\n")
+
+        self.txt.insert("end", f"\nTOTAL: R$ {total:.2f}")
+
+    def salvar(self):
+        arq = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Arquivos de Texto", "*.txt")])
+        if arq:
+            with open(arq, "w", encoding="utf-8") as f:
+                f.write(self.txt.get("1.0", "end"))
+            messagebox.showinfo("Sucesso", "Recibo salvo com sucesso!")
+
+    def limpar(self):
+        for p in self.qtd:
+            self.qtd[p] = 0
+            self.labels_qtd[p].config(text="0")
+        self.txt.delete("1.0", "end")
+        self.atualizar_total()
+
+if __name__ == "__main__":
+    Sakura()
