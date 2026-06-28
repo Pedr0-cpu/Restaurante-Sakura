@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox, filedialog
 import random
-
+#vlw ryan
 LIMITE_TOTAL = 100
 
 PRODUTOS = {
